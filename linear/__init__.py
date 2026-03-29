@@ -1,0 +1,3 @@
+# Linear interpolation module
+
+from .LinearInterpolationLine import linear_interpolation_line, reverse_linear_interpolation_line, reverse_linear_interpolation_line_with_tangent
