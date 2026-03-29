@@ -7,18 +7,20 @@
 import sys
 from pathlib import Path
 
-# Add repository root to path so imports like "src.*" resolve correctly
-repo_root = Path(__file__).resolve().parents[3]
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
+# Add _tests and submodule root to path so local utils and interpolation imports resolve
+_tests_root = str(Path(__file__).resolve().parent)
+_submodule_root = str(Path(__file__).resolve().parent.parent)
+for _path in (_tests_root, _submodule_root):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
 output_dir = Path(__file__).resolve().parent / "output"
 output_dir.mkdir(parents=True, exist_ok=True)
 
 import numpy as np
 
-import src.geometry.IO as io
-from src.viz.usdview import open_usd_viewer
+import utils.io_utils as io
+from utils.usd_viewer import open_usd_viewer
 
 from importlib import reload
 
@@ -54,9 +56,9 @@ mesh_paths = [quad_high_poly_mesh_path,
 
 # %%
 
-import src.interpolation.volumetric.TrilinearInterpolationHexahedron as triq
+import volumetric.TrilinearInterpolationHexahedron as triq
 reload(triq)
-from src.interpolation.volumetric.TrilinearInterpolationHexahedron import trilinear_interpolation_hexahedron, reverse_trilinear_interpolation_hexahedron
+from volumetric.TrilinearInterpolationHexahedron import trilinear_interpolation_hexahedron, reverse_trilinear_interpolation_hexahedron
 
 # =========================================
 # Testing Trilinear Interpolation Hexahedron
@@ -165,9 +167,9 @@ del stage
 # Testing Barycentric Linear Interpolation Trigonal
 # =========================================
 
-import src.interpolation.volumetric.BarycentricLinearInterpolationTrigonal as blint
+import volumetric.BarycentricLinearInterpolationTrigonal as blint
 reload(blint)
-from src.interpolation.volumetric.BarycentricLinearInterpolationTrigonal import barycentric_linear_interpolation_trigonal, reverse_barycentric_linear_interpolation_trigonal
+from volumetric.BarycentricLinearInterpolationTrigonal import barycentric_linear_interpolation_trigonal, reverse_barycentric_linear_interpolation_trigonal
 
 mesh_index = 2
 
@@ -273,9 +275,9 @@ del stage
 # Testing Barycentric Interpolation Tetrahedron
 # =========================================
 
-import src.interpolation.volumetric.BarycentricInterpolationTetrahedron as btet
+import volumetric.BarycentricInterpolationTetrahedron as btet
 reload(btet)
-from src.interpolation.volumetric.BarycentricInterpolationTetrahedron import barycentric_interpolation_tetrahedron, reverse_barycentric_interpolation_tetrahedron
+from volumetric.BarycentricInterpolationTetrahedron import barycentric_interpolation_tetrahedron, reverse_barycentric_interpolation_tetrahedron
 
 mesh_index = 4
 
@@ -367,9 +369,9 @@ del stage
 # Testing Trilinear Interpolation Pentahedron
 # =========================================
 
-import src.interpolation.volumetric.TrilinearInterpolationPentahedron as penta
+import volumetric.TrilinearInterpolationPentahedron as penta
 reload(penta)
-from src.interpolation.volumetric.TrilinearInterpolationPentahedron import trilinear_interpolation_pentahedron, reverse_trilinear_interpolation_pentahedron
+from volumetric.TrilinearInterpolationPentahedron import trilinear_interpolation_pentahedron, reverse_trilinear_interpolation_pentahedron
 
 mesh_index = 6
 

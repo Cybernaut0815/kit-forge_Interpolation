@@ -7,19 +7,21 @@
 import sys
 from pathlib import Path
 
-# Add repository root to path so imports like "src.*" resolve correctly
-repo_root = Path(__file__).resolve().parents[3]
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
+# Add _tests and submodule root to path so local utils and interpolation imports resolve
+_tests_root = str(Path(__file__).resolve().parent)
+_submodule_root = str(Path(__file__).resolve().parent.parent)
+for _path in (_tests_root, _submodule_root):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
 output_dir = Path(__file__).resolve().parent / "output"
 output_dir.mkdir(parents=True, exist_ok=True)
 
 import numpy as np
 
-import src.interpolation.helper as helper
-import src.geometry.IO as io
-from src.viz.usdview import open_usd_viewer
+import helper
+import utils.io_utils as io
+from utils.usd_viewer import open_usd_viewer
 from pxr import Usd, UsdGeom
 
 #%%
@@ -28,7 +30,7 @@ from pxr import Usd, UsdGeom
 # Testing Bilinear Interpolation with Tangent Vectors
 # =========================================
 
-from src.interpolation.planar.BilinearInterpolationQuad import reverse_bilinear_interpolation_quad_with_tangents
+from planar.BilinearInterpolationQuad import reverse_bilinear_interpolation_quad_with_tangents
 
 # Define a test quadrilateral in XZ plane (Y-up coordinate system)
 test_quad = np.array([
@@ -111,7 +113,7 @@ del stage
 # Testing Projective Interpolation with Tangent Vectors
 # =========================================
 
-from src.interpolation.planar.ProjectiveInterpolationQuad import reverse_projective_interpolation_quad_with_tangents
+from planar.ProjectiveInterpolationQuad import reverse_projective_interpolation_quad_with_tangents
 
 print("\n=== Projective Interpolation with Tangents ===")
 
@@ -174,7 +176,7 @@ del stage
 # Testing Barycentric Interpolation with Direction Vectors
 # =========================================
 
-from src.interpolation.planar.BarycentricInterpolationTri import reverse_barycentric_interpolation_tri_with_tangents
+from planar.BarycentricInterpolationTri import reverse_barycentric_interpolation_tri_with_tangents
 
 # Define a test triangle in XZ plane
 test_tri = np.array([

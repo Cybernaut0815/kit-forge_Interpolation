@@ -7,18 +7,20 @@
 import sys
 from pathlib import Path
 
-# Add repository root to path so imports like "src.*" resolve correctly
-repo_root = Path(__file__).resolve().parents[3]
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
+# Add _tests and submodule root to path so local utils and interpolation imports resolve
+_tests_root = str(Path(__file__).resolve().parent)
+_submodule_root = str(Path(__file__).resolve().parent.parent)
+for _path in (_tests_root, _submodule_root):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
 output_dir = Path(__file__).resolve().parent / "output"
 output_dir.mkdir(parents=True, exist_ok=True)
 
 import numpy as np
 
-import src.geometry.IO as io
-from src.viz.usdview import open_usd_viewer
+import utils.io_utils as io
+from utils.usd_viewer import open_usd_viewer
 from pxr import Usd, UsdGeom
 
 #%%
@@ -27,7 +29,7 @@ from pxr import Usd, UsdGeom
 # Testing Trilinear Interpolation Hexahedron with Tangent Vectors
 # =========================================
 
-from src.interpolation.volumetric.TrilinearInterpolationHexahedron import reverse_trilinear_interpolation_hexahedron_with_tangents
+from volumetric.TrilinearInterpolationHexahedron import reverse_trilinear_interpolation_hexahedron_with_tangents
 
 # Define a test hexahedron (8 vertices) in Y-up coordinate system
 # Order: [v000, v100, v010, v110, v001, v101, v011, v111]
@@ -122,7 +124,7 @@ del stage
 # Testing Barycentric Interpolation Tetrahedron with Direction Vectors
 # =========================================
 
-from src.interpolation.volumetric.BarycentricInterpolationTetrahedron import reverse_barycentric_interpolation_tetrahedron_with_tangents
+from volumetric.BarycentricInterpolationTetrahedron import reverse_barycentric_interpolation_tetrahedron_with_tangents
 
 # Define a test tetrahedron (4 vertices)
 test_tet = np.array([
@@ -230,7 +232,7 @@ del stage
 # Testing Barycentric Linear Interpolation Trigonal (Triangular Prism) with Direction Vectors
 # =========================================
 
-from src.interpolation.volumetric.BarycentricLinearInterpolationTrigonal import reverse_barycentric_linear_interpolation_trigonal_with_tangents
+from volumetric.BarycentricLinearInterpolationTrigonal import reverse_barycentric_linear_interpolation_trigonal_with_tangents
 
 # Define a test triangular prism (6 vertices)
 # Order: [v0_bottom, v1_bottom, v2_bottom, v0_top, v1_top, v2_top]
@@ -344,7 +346,7 @@ del stage
 # Testing Trilinear Interpolation Pentahedron (Pyramid) with Tangent Vectors
 # =========================================
 
-from src.interpolation.volumetric.TrilinearInterpolationPentahedron import reverse_trilinear_interpolation_pentahedron_with_tangents
+from volumetric.TrilinearInterpolationPentahedron import reverse_trilinear_interpolation_pentahedron_with_tangents
 
 # Define a test pentahedron (5 vertices: 4 base + 1 apex)
 # Order: [v00, v10, v01, v11, apex]

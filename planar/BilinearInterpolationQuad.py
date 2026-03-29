@@ -1,5 +1,9 @@
 import numpy as np
-from src.interpolation.helper import wedge_2d, wedge_2d_batch, lerp
+
+try:
+    from helper import wedge_2d, wedge_2d_batch, lerp
+except ModuleNotFoundError:
+    from src.interpolation.helper import wedge_2d, wedge_2d_batch, lerp
 
 
 def bilinear_interpolation_quad(quad: np.array, cartesian_coordinates: np.array):

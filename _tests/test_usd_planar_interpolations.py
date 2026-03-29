@@ -7,18 +7,20 @@
 import sys
 from pathlib import Path
 
-# Add repository root to path so imports like "src.*" resolve correctly
-repo_root = Path(__file__).resolve().parents[3]
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
+# Add _tests and submodule root to path so local utils and interpolation imports resolve
+_tests_root = str(Path(__file__).resolve().parent)
+_submodule_root = str(Path(__file__).resolve().parent.parent)
+for _path in (_tests_root, _submodule_root):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
 output_dir = Path(__file__).resolve().parent / "output"
 output_dir.mkdir(parents=True, exist_ok=True)
 
 import numpy as np
 
-import src.geometry.IO as io
-from src.viz.usdview import open_usd_viewer
+import utils.io_utils as io
+from utils.usd_viewer import open_usd_viewer
 
 from importlib import reload
 
@@ -46,7 +48,7 @@ mesh_paths = [quad_high_poly_mesh_path, quad_low_poly_mesh_path, tri_high_poly_m
 # Testing bilinear interpolation
 # =========================================
 
-from src.interpolation.planar.BilinearInterpolationQuad import bilinear_interpolation_quad, reverse_bilinear_interpolation_quad
+from planar.BilinearInterpolationQuad import bilinear_interpolation_quad, reverse_bilinear_interpolation_quad
 
 # Test for high poly quad mesh
 mesh_index = 0
@@ -127,7 +129,7 @@ del stage
 # Testing projective interpolation
 # =========================================
 
-from src.interpolation.planar.ProjectiveInterpolationQuad import projective_interpolation_quad, reverse_projective_interpolation_quad
+from planar.ProjectiveInterpolationQuad import projective_interpolation_quad, reverse_projective_interpolation_quad
 
 # Test for high poly quad mesh
 mesh_index = 0
@@ -208,7 +210,7 @@ del stage
 # Testing barycentric interpolation
 # =========================================
 
-from src.interpolation.planar.BarycentricInterpolationTri import barycentric_interpolation_tri, reverse_barycentric_interpolation_tri
+from planar.BarycentricInterpolationTri import barycentric_interpolation_tri, reverse_barycentric_interpolation_tri
 
 # Test for high poly tri mesh
 mesh_index = 2

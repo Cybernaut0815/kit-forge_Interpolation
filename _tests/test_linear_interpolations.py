@@ -7,10 +7,12 @@
 import sys
 from pathlib import Path
 
-# Add repository root to path so imports like "src.*" resolve correctly
-repo_root = Path(__file__).resolve().parents[3]
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
+# Add _tests and submodule root to path so local utils and interpolation imports resolve
+_tests_root = str(Path(__file__).resolve().parent)
+_submodule_root = str(Path(__file__).resolve().parent.parent)
+for _path in (_tests_root, _submodule_root):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
 import numpy as np
 from importlib import reload
@@ -21,9 +23,9 @@ from importlib import reload
 # Import linear interpolation functions
 # =========================================
 
-import src.interpolation.linear.LinearInterpolationLine as linline
+import linear.LinearInterpolationLine as linline
 reload(linline)
-from src.interpolation.linear.LinearInterpolationLine import linear_interpolation_line, reverse_linear_interpolation_line, reverse_linear_interpolation_line_with_tangent
+from linear.LinearInterpolationLine import linear_interpolation_line, reverse_linear_interpolation_line, reverse_linear_interpolation_line_with_tangent
 
 # Define a 3D line segment
 line = np.array([
