@@ -2,8 +2,18 @@
 
 import subprocess
 import os
+import json
 from pathlib import Path
 from typing import Optional
+
+
+def load_config() -> dict:
+    """Load configuration from .config.json in interpolation submodule root."""
+    config_path = Path(__file__).resolve().parents[2] / ".config.json"
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    return {}
 
 
 def get_clean_windows_env() -> dict:
@@ -45,21 +55,24 @@ def open_usd_viewer(
     stage_path = os.path.abspath(stage_path)
 
     if viewer_path is None:
-        # When used inside the parent repo the viewer sits at <repo>/usdview/scripts/usdview.bat
-        # When standalone, the user must pass viewer_path or set USDVIEW_PATH env var.
-        env_viewer = os.environ.get('USDVIEW_PATH')
-        if env_viewer:
-            viewer_path = env_viewer
+        # Priority: config file > environment variable > relative paths
+        config = load_config()
+        if 'usdview_path' in config:
+            viewer_path = config['usdview_path']
         else:
-            # Try relative path that works when embedded in parent repo
-            candidates = [
-                Path(__file__).resolve().parents[3] / "usdview" / "scripts" / "usdview.bat",
-                Path(__file__).resolve().parents[2] / "usdview" / "scripts" / "usdview.bat",
-            ]
-            for candidate in candidates:
-                if candidate.exists():
-                    viewer_path = str(candidate)
-                    break
+            env_viewer = os.environ.get('USDVIEW_PATH')
+            if env_viewer:
+                viewer_path = env_viewer
+            else:
+                # Try relative path that works when embedded in parent repo
+                candidates = [
+                    Path(__file__).resolve().parents[3] / "usdview" / "scripts" / "usdview.bat",
+                    Path(__file__).resolve().parents[2] / "usdview" / "scripts" / "usdview.bat",
+                ]
+                for candidate in candidates:
+                    if candidate.exists():
+                        viewer_path = str(candidate)
+                        break
 
     if viewer_path is None:
         raise FileNotFoundError(

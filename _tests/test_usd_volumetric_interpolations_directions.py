@@ -7,14 +7,25 @@
 import sys
 from pathlib import Path
 
-# Add _tests and submodule root to path so local utils and interpolation imports resolve
-_tests_root = str(Path(__file__).resolve().parent)
-_submodule_root = str(Path(__file__).resolve().parent.parent)
-for _path in (_tests_root, _submodule_root):
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+# Path setup that works both as script and in Jupyter
+try:
+    # When running as a script
+    _tests_dir = Path(__file__).resolve().parent
+    _parent_dir = str(_tests_dir.parent)
+except NameError:
+    # When running in Jupyter/interactive - __file__ doesn't exist
+    _parent_dir = str(Path.cwd())
+    _tests_dir = Path.cwd() / '_tests'
 
-output_dir = Path(__file__).resolve().parent / "output"
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
+if str(_tests_dir) not in sys.path:
+    sys.path.insert(0, str(_tests_dir))
+
+_tests_root = _tests_dir
+_submodule_root = Path(_parent_dir)
+
+output_dir = Path(_tests_root) / "output"
 output_dir.mkdir(parents=True, exist_ok=True)
 
 import numpy as np

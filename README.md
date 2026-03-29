@@ -61,15 +61,6 @@ For pure interpolation math kernels, the essential dependencies are:
 - `numpy`
 - `scipy`
 
-### Integration and visualization usage
-
-Some development tests and visualization scripts also rely on:
-
-- `usd-core` (OpenUSD Python bindings)
-- `trimesh`
-- `pillow`
-- optional geometry ecosystem packages used elsewhere in the host project
-
 ## Standalone Setup (Submodule-only)
 
 If you want to use and develop this submodule independently of the parent repository:
@@ -102,14 +93,33 @@ Windows PowerShell:
 3. Install dependencies:
 
 ```bash
-pip install numpy scipy
+pip install -r requirements.txt
 ```
 
-Optional integration stack for USD-oriented scripts:
+
+
+### Configuration
+
+When using this submodule **standalone** (not as part of the larger kit-forge project), create a `.config.json` file in the submodule root to specify the USD viewer path. This is required for running USD visualization tests:
+
+```json
+{
+  "usdview_path": "C:\\Users\\your_username\\Documents\\Github\\usdview\\scripts\\usdview.bat"
+}
+```
+
+**Note:** When using the submodule as part of the main kit-forge project, the configuration file at the project root (`.config.json`) takes precedence.
+
+You can also set the `USDVIEW_PATH` environment variable as a fallback:
 
 ```bash
-pip install usd-core trimesh pillow
+set USDVIEW_PATH=C:\Users\your_username\Documents\Github\usdview\scripts\usdview.bat
 ```
+
+**Priority order:**
+1. `.config.json` file (config-first approach)
+2. `USDVIEW_PATH` environment variable
+3. Relative path fallback (only in parent repo mode)
 
 ## Standalone Development Workflow
 
@@ -144,6 +154,49 @@ For USD-producing scripts, ensure:
 
 - required USD dependencies are installed
 - expected asset paths exist in your working copy
+
+### Running tests in Jupyter notebooks
+
+The test files now handle both script and Jupyter execution automatically.
+
+**Simple setup (recommended):** In your first Jupyter cell, run:
+
+```python
+import sys
+import os
+from pathlib import Path
+
+# Set working directory to submodule root
+os.chdir(r'c:\Users\chris\Documents\Github\kit-forge\kit-forge_GeometrySets\src\interpolation')
+
+# Add paths for imports
+sys.path.insert(0, str(Path.cwd() / '_tests'))
+sys.path.insert(0, str(Path.cwd()))
+
+print("✓ Paths configured")
+```
+
+Then in subsequent cells, copy code from the test files or import directly:
+
+```python
+import utils.io_utils as io
+from utils.usd_viewer import open_usd_viewer
+from linear.LinearInterpolationLine import linear_interpolation_line
+from planar.BilinearInterpolationQuad import bilinear_interpolation_quad
+from volumetric.TrilinearInterpolationHexahedron import trilinear_interpolation_hexahedron
+```
+
+Or use the helper function (if installed):
+
+```python
+from notebook_setup import notebook_setup_interpolation
+notebook_setup_interpolation()
+```
+
+**Why this works:**
+- Test files use `try/except` to detect if running as script (`__file__` exists) or in Jupyter (`__file__` missing)
+- In Jupyter, they fall back to using `Path.cwd()` to find paths
+- Make sure your Jupyter working directory is set to the submodule root
 
 ## Using as a Submodule in another Repo
 

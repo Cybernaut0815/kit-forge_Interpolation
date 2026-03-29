@@ -3,6 +3,9 @@
 import numpy as np
 from pxr import Usd, UsdGeom, Vt
 
+import shutil
+from pathlib import Path
+from pxr import Sdf
 
 def load_usd_file(stage_path):
     """
@@ -75,6 +78,57 @@ def update_usd_mesh_vertices(usd_stage, mesh_path, new_vertices):
     points_attr.Set(points_array)
 
     return usd_stage
+
+
+def export_usd_with_textures(usd_stage, output_path):
+    """
+    Export a USD stage and copy all referenced texture files to the output directory.
+    Updates material paths to reference the copied textures.
+
+    Args:
+        usd_stage (Usd.Stage): USD stage to export
+        output_path (str): Path where to save the USD file
+    """
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = str(output_path)
+
+    texture_attributes = []
+    stage_real_path = usd_stage.GetRootLayer().realPath or ""
+    stage_root_dir = Path(stage_real_path).parent if stage_real_path else Path.cwd()
+
+    for prim in usd_stage.Traverse():
+        for attr in prim.GetAttributes():
+            try:
+                attr_value = attr.Get()
+                attr_str = str(attr_value) if attr_value else ""
+                if any(attr_str.lower().endswith(ext) for ext in ['.exr', '.png', '.jpg', '.jpeg', '.tiff', '.tx']):
+                    texture_attributes.append((prim, attr.GetName(), attr_value))
+            except Exception:
+                pass
+
+    for prim, attr_name, original_path in texture_attributes:
+        attr = prim.GetAttribute(attr_name)
+        if not attr:
+            continue
+
+        orig_str = str(original_path)
+        texture_path = Path(orig_str)
+        if texture_path.exists():
+            source_texture = texture_path
+        else:
+            relative_source = stage_root_dir / orig_str
+            if relative_source.exists():
+                source_texture = relative_source
+            else:
+                continue
+
+        dest_texture = output_dir / source_texture.name
+        if source_texture.exists():
+            shutil.copy2(str(source_texture), str(dest_texture))
+            attr.Set(Sdf.AssetPath(source_texture.name))
+
+    usd_stage.Export(output_path)
 
 
 def add_lines_to_usd_stage(usd_stage, lines, line_path='/World/Lines', color=(1.0, 0.0, 0.0), line_width=2.0):
