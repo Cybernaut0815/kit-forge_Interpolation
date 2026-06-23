@@ -1,13 +1,15 @@
 import numpy as np
 
 try:
-    from planar.BilinearInterpolationQuad import (
+    # Package mode (e.g., interpolation.planar.SubdividedInterpolationQuad)
+    from .BilinearInterpolationQuad import (
         bilinear_interpolation_quad,
         reverse_bilinear_interpolation_quad,
         reverse_bilinear_interpolation_quad_with_tangents,
     )
-except ModuleNotFoundError:
-    from src.interpolation.planar.BilinearInterpolationQuad import (
+except ImportError:
+    # Standalone mode (repo root on PYTHONPATH)
+    from planar.BilinearInterpolationQuad import (
         bilinear_interpolation_quad,
         reverse_bilinear_interpolation_quad,
         reverse_bilinear_interpolation_quad_with_tangents,

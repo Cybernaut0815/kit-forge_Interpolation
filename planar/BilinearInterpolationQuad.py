@@ -1,9 +1,11 @@
 import numpy as np
 
 try:
+    # Package mode (e.g., interpolation.planar.BilinearInterpolationQuad)
+    from ..helper import wedge_2d, wedge_2d_batch, lerp
+except ImportError:
+    # Standalone mode (repo root on PYTHONPATH)
     from helper import wedge_2d, wedge_2d_batch, lerp
-except ModuleNotFoundError:
-    from src.interpolation.helper import wedge_2d, wedge_2d_batch, lerp
 
 
 def bilinear_interpolation_quad(quad: np.array, cartesian_coordinates: np.array):
